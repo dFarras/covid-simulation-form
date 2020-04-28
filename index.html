@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Covid simulation</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="shortcut icon" href="images/icons/favicon3.webp"/>
+	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+</head>
+<body>
+	<div class="container-contact100">
+		<div class="wrap-contact100">
+			<form class="contact100-form validate-form" id="covid-form">
+				<span class="contact100-form-title">COVID SIMULATION</span>
+
+				<div class="wrap-input100 validate-input bg1" data-validate="Please Type Your Name">
+					<span class="label-input100">POPULATION</span>
+					<input class="input100" type="text" name="population" placeholder="Enter population amount (1000)" value = "1000" >
+				</div>
+				
+				<div class="wrap-input100 validate-input bg1" data-validate="Please Type Your Name">
+					<span class="label-input100">HOUSE CAPACITY</span>
+					<input class="input100" type="text" name="houseCapacity" placeholder="Enter house capacity (3)" value = "3" >
+				</div>
+				
+				<div class="wrap-input100 validate-input bg1" data-validate="Please Type Your Name">
+					<span class="label-input100">WORKPLACE CAPACITY</span>
+					<input class="input100" type="text" name="workplaceCapacity" placeholder="Enter workplace capacity (25)" value = "25" >
+				</div>
+				
+				<div class="wrap-input100 validate-input bg1" data-validate="Please Type Your Name">
+					<span class="label-input100">INFECTED POPULATION</span>
+					<input class="input100" type="text" name="initialInfectedPopulation" placeholder="Initial infected population (100)" value = "100" >
+				</div>
+				
+				<div class="wrap-input100 validate-input bg1" data-validate="Please Type Your Name">
+					<span class="label-input100">SIMULATED HOURS</span>
+					<input class="input100" type="text" name="hoursToSimulate" placeholder="Total hours to simulate (160)" value = "160" >
+				</div>
+				
+				<div class="wrap-input100 validate-input bg1" data-validate="Please Type Your Name">
+					<span class="label-input100">HOUSE SPREAD CHANCE</span>
+					<input class="input100" type="text" name="houseSpreadChance" placeholder="Spread chance per hour in a house (10.00)" value = "10.00" >
+				</div>
+				
+				<div class="wrap-input100 validate-input bg1" data-validate="Please Type Your Name">
+					<span class="label-input100">WORKPLACE SPREAD CHANCE</span>
+					<input class="input100" type="text" name="workplaceSpreadChance" placeholder="Spread chance per hour in a workplace (10.00)" value = "10.00" >
+				</div>
+
+				<div class="container-contact100-form-btn">
+					<button class="contact100-form-btn" data-toggle="modal" data-target="#myModal">
+						<span>
+							Submit
+							<i class="fa fa-long-arrow-right m-l-7" aria-hidden="true"></i>
+						</span>
+					</button>
+				</div>
+			</form>
+		</div>
+		
+		<!-- Modal -->
+		<div class="modal fade" id="myModal" role="dialog">
+			<div class="modal-dialog">
+		
+			<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<span class="contact100-modal-title">COVID SIMULATION</span>
+					</div>
+					<div class="modal-body">
+						<button type="button" class="collapsible">Result summary</button>
+						<div class="content">
+							<textarea id="modal-result-summary"  cols="30" rows="10" >Loading data, please wait...</textarea>
+						</div>
+						<button type="button" class="collapsible">Hourly report</button>
+						<div class="content">
+							<textarea id="modal-result-hourly"  cols="30" rows="10" >Loading data, please wait...</textarea>
+						</div>
+						<button type="button" class="collapsible">Configuration</button>
+						<div class="content">
+							<textarea id="modal-result-configuration"  cols="30" rows="10" >Loading data, please wait...</textarea>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="contact100-form-btn" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="vendor/bootstrap/js/popper.js"></script>
+	<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+	<script>
+	$( "#covid-form" ).submit(function( event ) {
+	event.preventDefault();
+	
+	var $form = $( this ),
+		population = $form.find("input[name='population']").val(),
+		houseCapacity = $form.find("input[name='houseCapacity']").val(),
+		workplaceCapacity = $form.find("input[name='workplaceCapacity']").val(),
+		initialInfectedPopulation = $form.find("input[name='initialInfectedPopulation']").val(),
+		hoursToSimulate = $form.find("input[name='hoursToSimulate']").val(),
+		houseSpreadChance = $form.find("input[name='houseSpreadChance']").val(),
+		workplaceSpreadChance = $form.find("input[name='workplaceSpreadChance']").val(),
+		target = "http://localhost:8080/covid-simulation/start-simulation";
+		
+		startConfig = {};
+		startConfig["population"] = population;
+		startConfig["personPerHouse"] = houseCapacity;
+		startConfig["personPerWorkplace"] = workplaceCapacity;
+		startConfig["initialInfectedPopulation"] = initialInfectedPopulation;
+		simulationConfig = {};
+		simulationConfig["totalSimulatedHours"] = hoursToSimulate;
+		contagionConfig = {};
+		contagionConfig["houseSpreadChance"] = houseSpreadChance;
+		contagionConfig["workplaceSpreadChance"] = workplaceSpreadChance;
+		jsonResult = {};
+		jsonResult["startConfiguration"] = startConfig;
+		jsonResult["simulationConfiguration"] = simulationConfig;
+		jsonResult["contagionConfiguration"] = contagionConfig;
+	
+		var posting = $.ajax( 
+						{ 
+							type: 'POST',
+							url: target,
+							crossDomain: true,
+							crossOrigin: true,
+							data: JSON.stringify(jsonResult),
+							beforeSend: function(request) {
+								request.setRequestHeader("Accept", "application/json");
+								request.setRequestHeader("Content-Type", "application/json")
+							},
+							dataType: 'json',
+							error: function(responseData, textStatus, errorThrown) {
+								alert ('Failiure!');
+								console.log(responseData);
+								console.log(textStatus);
+								console.log(errorThrown);
+							}
+						} 
+					);
+	
+		posting.done(function( data ) {
+			var content = $( data )[0];
+			$( "#modal-result-summary" ).text( JSON.stringify(content["resultSummary"], null, 4) );
+			$( "#modal-result-hourly" ).text( JSON.stringify(content["hourlyReport"], null, 4) );
+			$( "#modal-result-configuration" ).text( JSON.stringify(content["configuration"], null, 4) );
+		});
+	});
+	</script>
+	<script>
+	var coll = document.getElementsByClassName("collapsible");
+	var i;
+	
+	for (i = 0; i < coll.length; i++) {
+		coll[i].addEventListener("click", function() {
+			this.classList.toggle("active");
+				var content = this.nextElementSibling;
+				if (content.style.display === "block") {
+					content.style.display = "none";
+				} else {
+					content.style.display = "block";
+				}
+			}
+	);
+	}
+	</script>
+</body>
+</html>
