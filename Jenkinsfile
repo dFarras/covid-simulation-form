@@ -1,5 +1,5 @@
-def image_name = "covid-simulation-front-image"
-def container_name = "simulation-front-container"
+def image_name = "simulation-form-image"
+def container_name = "simulation-form-cntr"
 pipeline {
     agent any
     stages {
