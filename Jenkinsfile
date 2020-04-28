@@ -1,7 +1,7 @@
 def image_name = "covid-simulation-front-image"
 def container_name = "simulation-front-container"
 pipeline {
-    agent httpd:
+    agent httpd:2.4
     stages {
         stage('KILL-PREV') {
             steps {
